@@ -1,9 +1,9 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 import asyncio
 import sqlite3
-from config import TELEGRAM_BOT_TOKEN
+from config import TELEGRAM_BOT_TOKEN  # Убедитесь, что токен указан в config.py
 
 # Инициализация бота и диспетчера
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
@@ -28,7 +28,15 @@ async def start_game(message: types.Message):
     username = message.from_user.username or "Безымянный"
     cursor.execute("INSERT OR IGNORE INTO players (user_id, username) VALUES (?, ?)", (user_id, username))
     conn.commit()
-    await message.reply(f"Добро пожаловать в игру, {username}! У вас есть 100 монет.")
+
+    # Создаем кнопку с мини-приложением
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text="Открыть мини-приложение",
+            web_app=WebAppInfo(url="https://mol1k0.github.io/bot_v2/")  # URL вашего мини-приложения
+        )]
+    ])
+    await message.reply(f"Добро пожаловать в игру, {username}! У вас есть 100 монет. Нажмите кнопку, чтобы открыть мини-приложение.", reply_markup=keyboard)
 
 # Хэндлер для команды /work
 @dp.message(Command("work"))
@@ -57,13 +65,15 @@ async def on_shutdown():
 
 # Основная функция
 async def main():
-    # Удаление вебхука и запуск бота
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    try:
+        # Удаление вебхука и запуск бота
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot)
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+    finally:
+        await on_shutdown()
 
 # Запуск асинхронного цикла
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        asyncio.run(on_shutdown())
+    asyncio.run(main())
