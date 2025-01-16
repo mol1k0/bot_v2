@@ -3,12 +3,10 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
 import sqlite3
-
-# Токен вашего бота
-TOKEN = "8029566728:AAGpHq9J07Fn6r0GNcNy6tQ-11JsPWe9lvI"
+from config import TELEGRAM_BOT_TOKEN
 
 # Инициализация бота и диспетчера
-bot = Bot(token=TOKEN)
+bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
 # Подключение к базе данных
