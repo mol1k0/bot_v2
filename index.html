@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мини-игра</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Добро пожаловать в мини-игру!</h1>
+    <p>Ваш баланс: <span id="balance">0</span> монет</p>
+    <button onclick="work()">Поработать</button>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+
+        // Функция для обновления баланса
+        function updateBalance(balance) {
+            document.getElementById('balance').innerText = balance;
+        }
+
+        // Функция для работы
+        function work() {
+            // Отправляем запрос на сервер для работы
+            fetch('/work', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: tg.initDataUnsafe.user.id }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateBalance(data.balance);
+                }
+            });
+        }
+
+        // Загрузка баланса при открытии
+        fetch('/balance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: tg.initDataUnsafe.user.id }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateBalance(data.balance);
+            }
+        });
+    </script>
+</body>
+</html>
