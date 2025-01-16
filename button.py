@@ -36,7 +36,7 @@ async def start_game(message: types.Message):
             web_app=WebAppInfo(url="https://mol1k0.github.io/bot_v2/")  # URL вашего мини-приложения
         )]
     ])
-    await message.reply(f"Добро пожаловать в игру, {username}! У вас есть 100 монет. Нажмите кнопку, чтобы открыть мини-приложение.", reply_markup=keyboard)
+    await message.reply(f"Добро пожаловать в игру, {username}! У вас есть 100₽. Нажмите кнопку, чтобы открыть мини-приложение.", reply_markup=keyboard)
 
 # Хэндлер для команды /work
 @dp.message(Command("work"))
@@ -45,7 +45,14 @@ async def work(message: types.Message):
     earnings = 10  # Деньги за "работу"
     cursor.execute("UPDATE players SET balance = balance + ? WHERE user_id = ?", (earnings, user_id))
     conn.commit()
-    await message.reply(f"Вы поработали и заработали {earnings} монет!")
+
+    # Получаем обновленный баланс
+    cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    if result:
+        await message.reply(f"Вы поработали и заработали {earnings}₽. Теперь ваш баланс: {result[0]}₽.")
+    else:
+        await message.reply("Ошибка: ваш аккаунт не найден. Используйте /start.")
 
 # Хэндлер для команды /balance
 @dp.message(Command("balance"))
@@ -54,7 +61,7 @@ async def balance(message: types.Message):
     cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
     result = cursor.fetchone()
     if result:
-        await message.reply(f"Ваш баланс: {result[0]} монет.")
+        await message.reply(f"Ваш баланс: {result[0]}₽.")
     else:
         await message.reply("Вы ещё не зарегистрированы. Используйте /start.")
 
