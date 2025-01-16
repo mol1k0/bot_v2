@@ -14,23 +14,50 @@
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin-top: 20px;
+        }
+        #balance {
+            font-weight: bold;
+            color: green;
         }
     </style>
 </head>
 <body>
     <h1>Мини-приложение</h1>
-    <p>Ваш баланс: <span id="balance">100</span>₽</p>
+    <p>Ваш баланс: <span id="balance">Загрузка...</span>₽</p>
     <button onclick="earnMoney()">Заработать 10₽</button>
 
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
 
+        // Функция для получения баланса из initData
+        function getBalanceFromInitData() {
+            const initData = new URLSearchParams(tg.initData);
+            const user = JSON.parse(initData.get('user'));
+            return user.balance || 100;  // Если баланс не передан, используем значение по умолчанию
+        }
+
+        // Функция для обновления баланса на странице
+        function updateBalance(balance) {
+            document.getElementById('balance').innerText = balance;
+        }
+
         // Функция для отправки данных в бота
         function earnMoney() {
-            tg.sendData("earn_money");  // Отправляем данные в бота
-            tg.close();  // Закрываем мини-приложение
+            // Отправляем данные в бота
+            tg.sendData("earn_money");
+
+            // Закрываем мини-приложение (опционально)
+            tg.close();
         }
+
+        // Инициализация мини-приложения
+        tg.ready();
+
+        // Получаем баланс и обновляем его на странице
+        const initialBalance = getBalanceFromInitData();
+        updateBalance(initialBalance);
     </script>
 </body>
 </html>

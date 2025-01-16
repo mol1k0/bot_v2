@@ -29,15 +29,22 @@ async def start_game(message: types.Message):
     cursor.execute("INSERT OR IGNORE INTO players (user_id, username) VALUES (?, ?)", (user_id, username))
     conn.commit()
 
+    # Получаем текущий баланс пользователя
+    cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
+    balance = cursor.fetchone()[0]
+
+    # Создаем ссылку с параметрами для мини-приложения
+    web_app_url = f"https://your-mini-app-url.com?balance={balance}"
+
     # Создаем кнопку с мини-приложением
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="Открыть мини-приложение",
-            web_app=WebAppInfo(url="https://mol1k0.github.io/bot_v2/")  # URL вашего мини-приложения
+            web_app=WebAppInfo(url=web_app_url)  # URL вашего мини-приложения с параметрами
         )]
     ])
     await message.reply(
-        f"Добро пожаловать в игру, {username}! У вас есть 100₽. Нажмите кнопку, чтобы открыть мини-приложение.",
+        f"Добро пожаловать в игру, {username}! У вас есть {balance}₽. Нажмите кнопку, чтобы открыть мини-приложение.",
         reply_markup=keyboard
     )
 
@@ -47,7 +54,7 @@ async def handle_web_app_data(message: types.Message):
     user_id = message.from_user.id
     data = message.web_app_data.data  # Данные, отправленные из мини-приложения
 
-    # Пример обработки данных
+    # Обработка данных
     if data == "earn_money":
         earnings = 10
         cursor.execute("UPDATE players SET balance = balance + ? WHERE user_id = ?", (earnings, user_id))
@@ -80,5 +87,3 @@ async def main():
 # Запуск асинхронного цикла
 if __name__ == "__main__":
     asyncio.run(main())
-
-
