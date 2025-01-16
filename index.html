@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мини-игра</title>
+    <title>Мини-приложение</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,51 +18,19 @@
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать в мини-игру!</h1>
-    <p>Ваш баланс: <span id="balance">0</span> монет</p>
-    <button onclick="work()">Поработать</button>
+    <h1>Мини-приложение</h1>
+    <p>Ваш баланс: <span id="balance">100</span>₽</p>
+    <button onclick="earnMoney()">Заработать 10₽</button>
 
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
 
-        // Функция для обновления баланса
-        function updateBalance(balance) {
-            document.getElementById('balance').innerText = balance;
+        // Функция для отправки данных в бота
+        function earnMoney() {
+            tg.sendData("earn_money");  // Отправляем данные в бота
+            tg.close();  // Закрываем мини-приложение
         }
-
-        // Функция для работы
-        function work() {
-            // Отправляем запрос на сервер для работы
-            fetch('/work', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: tg.initDataUnsafe.user.id }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateBalance(data.balance);
-                }
-            });
-        }
-
-        // Загрузка баланса при открытии
-        fetch('/balance', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id: tg.initDataUnsafe.user.id }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateBalance(data.balance);
-            }
-        });
     </script>
 </body>
 </html>

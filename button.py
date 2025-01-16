@@ -33,37 +33,33 @@ async def start_game(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="Открыть мини-приложение",
-            web_app=WebAppInfo(url="https://mol1k0.github.io/bot_v2/")  # URL вашего мини-приложения
+            web_app=WebAppInfo(url="https://your-mini-app-url.com")  # URL вашего мини-приложения
         )]
     ])
-    await message.reply(f"Добро пожаловать в игру, {username}! У вас есть 100₽. Нажмите кнопку, чтобы открыть мини-приложение.", reply_markup=keyboard)
+    await message.reply(
+        f"Добро пожаловать в игру, {username}! У вас есть 100₽. Нажмите кнопку, чтобы открыть мини-приложение.",
+        reply_markup=keyboard
+    )
 
-# Хэндлер для команды /work
-@dp.message(Command("work"))
-async def work(message: types.Message):
+# Хэндлер для обработки данных из мини-приложения
+@dp.message(lambda message: message.web_app_data)
+async def handle_web_app_data(message: types.Message):
     user_id = message.from_user.id
-    earnings = 10  # Деньги за "работу"
-    cursor.execute("UPDATE players SET balance = balance + ? WHERE user_id = ?", (earnings, user_id))
-    conn.commit()
+    data = message.web_app_data.data  # Данные, отправленные из мини-приложения
 
-    # Получаем обновленный баланс
-    cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-    if result:
-        await message.reply(f"Вы поработали и заработали {earnings}₽. Теперь ваш баланс: {result[0]}₽.")
-    else:
-        await message.reply("Ошибка: ваш аккаунт не найден. Используйте /start.")
+    # Пример обработки данных
+    if data == "earn_money":
+        earnings = 10
+        cursor.execute("UPDATE players SET balance = balance + ? WHERE user_id = ?", (earnings, user_id))
+        conn.commit()
 
-# Хэндлер для команды /balance
-@dp.message(Command("balance"))
-async def balance(message: types.Message):
-    user_id = message.from_user.id
-    cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-    if result:
-        await message.reply(f"Ваш баланс: {result[0]}₽.")
-    else:
-        await message.reply("Вы ещё не зарегистрированы. Используйте /start.")
+        # Получаем обновленный баланс
+        cursor.execute("SELECT balance FROM players WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        if result:
+            await message.reply(f"Вы заработали {earnings}₽. Теперь ваш баланс: {result[0]}₽.")
+        else:
+            await message.reply("Ошибка: ваш аккаунт не найден. Используйте /start.")
 
 # Закрытие соединения с базой данных при завершении работы бота
 async def on_shutdown():
@@ -84,3 +80,5 @@ async def main():
 # Запуск асинхронного цикла
 if __name__ == "__main__":
     asyncio.run(main())
+
+
