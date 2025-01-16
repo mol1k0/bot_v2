@@ -33,7 +33,7 @@ async def start_game(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="Открыть мини-приложение",
-            web_app=WebAppInfo(url="https://your-mini-app-url.com")  # URL вашего мини-приложения
+            web_app=WebAppInfo(url="https://mol1k0.github.io/bot_v2/")  # URL вашего мини-приложения
         )]
     ])
     await message.reply(
